@@ -11,12 +11,13 @@ on:
 env:
   NEXT_PUBLIC_TINA_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_TINA_CLIENT_ID }}
   TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-  NEXT_PUBLIC_TINA_BRANCH: ${{ github.head_ref }}
+  NEXT_PUBLIC_TINA_BRANCH: main
+
 jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-
+    name: Publish
     steps:
       - name: Checkout
         uses: actions/checkout@v4
