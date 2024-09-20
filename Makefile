@@ -37,14 +37,11 @@ help: ## Prints this help
 # Commands
 #-----------------------------------------
 clean: ## Cleans up environnement
-	@mkdir -p ./dist/docs && rm -rf ./dist/docs/*
 	@mkdir -p ${HOME}/.cache/yarn
-	@mkdir -p ${HOME}/.coverage
 	@docker-compose down --remove-orphans
 
 install: ## yarn install all project
 	@docker-compose run --rm --label "traefik.enable=false" app yarn
-	@cd ./tests/e2e && docker-compose run --rm --entrypoint=/usr/local/bin/yarn cypress
 
 docker.pull: ## Retrieves latest images
 	@docker-compose pull
@@ -60,23 +57,6 @@ dev: clean docker.pull docker.build dev.up ## Starts dev stack
 
 sh: ## Runs command inside container
 	@docker-compose run --rm --label "traefik.enable=false" app bash
-
-#-----------------------------------------
-# Tests
-#-----------------------------------------
-SKIP_OPEN :=
-test.unit: ## Runs unit tests
-	@docker-compose run --rm app bash -c "yarn run test:unit -t=${COMMAND_ARGS}"; \
-	 echo "Test report file://${PROJECT_PATH}coverage/tests.html"; \
-     test "${SKIP_OPEN}" || xdg-open "file://${PROJECT_PATH}coverage/tests.html"
-
-test.coverage: ## Runs unit tests with code coverage
-	@docker-compose run --rm app bash -c 'yarn run test:coverage'; \
-	 echo "Test report file://${PROJECT_PATH}coverage/tests.html"; \
-	 echo "Coverage report file://${PROJECT_PATH}coverage/lcov-report/index.html"; \
-     test "${SKIP_OPEN}" || xdg-open "file://${PROJECT_PATH}coverage/tests.html"; \
-	 test "${SKIP_OPEN}" || xdg-open "file://${PROJECT_PATH}coverage/lcov-report/index.html"
-
 #-----------------------------------------
 # Builds
 #-----------------------------------------

@@ -7,7 +7,8 @@ services:
   app:
     command: bash -c "yarn && yarn dev"
     environment:
-      - YARN_CACHE_FOLDER=/cache
+      YARN_CACHE_FOLDER: /cache
+      HOST: "`${PROJECT_URL}`"
     expose:
       - 3000
     image: node:18
