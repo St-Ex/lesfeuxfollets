@@ -8,6 +8,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 env:
   NEXT_PUBLIC_TINA_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_TINA_CLIENT_ID }}
   TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
@@ -17,26 +21,44 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-    name: Publish
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "yarn"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          static_site_generator: next
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          # Generate a new cache whenever packages or source files change.
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+
       - name: Install dependencies
         run: yarn install
+
       - name: Build
         run: yarn build
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload dist folder
-          path: "./public"
+          path: "./out"
+
   deploy:
     needs: build
 
